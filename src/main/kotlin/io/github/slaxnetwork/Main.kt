@@ -1,6 +1,6 @@
 package io.github.slaxnetwork
 
-import io.github.slaxnetwork.listeners.registerBaseListeners
+import io.github.slaxnetwork.listener.registerGlobalListeners
 import io.github.slaxnetwork.session.SessionDistributor
 import net.minestom.server.MinecraftServer
 import net.minestom.server.extras.velocity.VelocityProxy
@@ -8,7 +8,7 @@ import net.minestom.server.extras.velocity.VelocityProxy
 fun main() {
     val server = MinecraftServer.init()
 
-    registerBaseListeners()
+    registerGlobalListeners(server)
 
     SessionDistributor.createServerPool()
 

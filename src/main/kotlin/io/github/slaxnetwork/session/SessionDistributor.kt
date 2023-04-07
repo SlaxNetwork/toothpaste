@@ -1,6 +1,6 @@
 package io.github.slaxnetwork.session
 
-import io.github.slaxnetwork.game.GameInstance
+import io.github.slaxnetwork.game.KOTCGame
 
 /**
  * Create and manage pools of Game Instances.
@@ -14,8 +14,8 @@ object SessionDistributor {
      */
     private const val MAX_GAME_SESSIONS = 3
 
-    private val GAME_POOL = mutableSetOf<GameInstance>()
-    val gamePool: Set<GameInstance>
+    private val GAME_POOL = mutableSetOf<KOTCGame>()
+    val gamePool: Set<KOTCGame>
         get() = GAME_POOL
 
     /**
@@ -27,15 +27,21 @@ object SessionDistributor {
         GAME_POOL.clear()
 
         repeat(MAX_GAME_SESSIONS) {
-            GAME_POOL.add(GameInstance())
+            GAME_POOL.add(KOTCGame(
+                id = it
+            ))
         }
 
-        initializeServerPool()
+        registerServerPool()
     }
 
-    private fun initializeServerPool() {
+    /**
+     * Register the server pool onto Kyouko.
+     * @since 0.0.1
+     */
+    private fun registerServerPool() {
         for(gameInstance in gamePool) {
-
+            // kyouko reg
         }
     }
 
@@ -44,7 +50,8 @@ object SessionDistributor {
      * @return Possible Game Instance.
      * @since 0.0.1
      */
-    fun findGameInstance(): GameInstance? {
+    fun findGameInstance(): KOTCGame? {
+        // TODO: 4/7/2023 implement
         return gamePool.firstOrNull()
     }
 
@@ -54,7 +61,9 @@ object SessionDistributor {
      * @return Possible Game Instance.
      * @since 0.0.1
      */
-    fun findGameInstanceById(id: String): GameInstance? {
-        return gamePool.firstOrNull()
+    fun findGameInstanceById(id: Int): KOTCGame? {
+        return gamePool.firstOrNull {
+            it.id == id
+        }
     }
 }
