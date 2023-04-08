@@ -1,5 +1,6 @@
 package io.github.slaxnetwork
 
+import com.github.shynixn.mccoroutine.minestom.launch
 import io.github.slaxnetwork.listener.registerGlobalListeners
 import io.github.slaxnetwork.session.SessionDistributor
 import net.minestom.server.MinecraftServer
@@ -10,7 +11,9 @@ fun main() {
 
     registerGlobalListeners(server)
 
-    SessionDistributor.createServerPool()
+    server.launch {
+        SessionDistributor.createServerPool()
+    }
 
     VelocityProxy.enable("fOJMwAzavxNh")
     server.start("0.0.0.0", 25565)

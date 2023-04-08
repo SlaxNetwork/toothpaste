@@ -1,11 +1,17 @@
 package io.github.slaxnetwork.game.player
 
-import io.github.slaxnetwork.game.KOTCGame
+import io.github.slaxnetwork.game.KOTCGameSession
+import net.minestom.server.entity.Player
 import java.util.UUID
 
+/**
+ * @author Tech
+ * @since 0.0.1
+ */
 class GamePlayerSession(
     val uuid: UUID,
-    val kotcGame: KOTCGame
+    val kotcGame: KOTCGameSession
 ) {
-
+    val minestomPlayer: Player?
+        get() = Player.getEntity(uuid) as? Player
 }

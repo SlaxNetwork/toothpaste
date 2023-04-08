@@ -1,15 +1,19 @@
 package io.github.slaxnetwork.game.player
 
-import io.github.slaxnetwork.game.KOTCGame
+import io.github.slaxnetwork.game.KOTCGameSession
 import net.minestom.server.entity.Player
 import java.util.UUID
 
+/**
+ * @author Tech
+ * @since 0.0.1
+ */
 object GamePlayerSessionRegistry {
     private val PLAYERS = mutableSetOf<GamePlayerSession>()
     val players: Set<GamePlayerSession>
         get() = PLAYERS
 
-    fun addPlayer(player: Player, game: KOTCGame): GamePlayerSession {
+    fun addPlayer(player: Player, game: KOTCGameSession): GamePlayerSession {
         val session = GamePlayerSession(
             player.uuid,
             game
