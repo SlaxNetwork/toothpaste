@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.8.10"
+    kotlin("plugin.serialization") version "1.8.10"
 
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -18,12 +19,13 @@ repositories {
 dependencies {
     implementation("com.github.Minestom.Minestom:Minestom:-SNAPSHOT")
 
-    implementation("com.github.shynixn.mccoroutine:mccoroutine-minestom-api:2.11.0")
-    implementation("com.github.shynixn.mccoroutine:mccoroutine-minestom-core:2.11.0")
-
     implementation("com.github.hollow-cube.common:schem:e187e892fd")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-minestom-api:2.11.0")
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-minestom-core:2.11.0")
 }
 
 tasks.jar {

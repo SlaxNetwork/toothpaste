@@ -1,6 +1,7 @@
 package io.github.slaxnetwork
 
 import com.github.shynixn.mccoroutine.minestom.launch
+import io.github.slaxnetwork.commands.TestInstanceCommand
 import io.github.slaxnetwork.listener.registerGlobalListeners
 import io.github.slaxnetwork.session.SessionDistributor
 import net.minestom.server.MinecraftServer
@@ -8,6 +9,9 @@ import net.minestom.server.extras.velocity.VelocityProxy
 
 fun main() {
     val server = MinecraftServer.init()
+
+    val commandManager = MinecraftServer.getCommandManager()
+    commandManager.register(TestInstanceCommand)
 
     registerGlobalListeners(server)
 

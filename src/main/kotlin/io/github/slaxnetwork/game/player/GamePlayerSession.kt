@@ -12,6 +12,10 @@ class GamePlayerSession(
     val uuid: UUID,
     val kotcGame: KOTCGameSession
 ) {
+    var connected: Boolean = true
+
+    val statistics = GamePlayerSessionStatistics()
+
     val minestomPlayer: Player?
         get() = Player.getEntity(uuid) as? Player
 }

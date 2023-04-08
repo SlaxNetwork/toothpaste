@@ -9,6 +9,7 @@ import net.minestom.server.coordinate.Pos
 import net.minestom.server.entity.GameMode
 import net.minestom.server.event.EventFilter
 import net.minestom.server.event.EventNode
+import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.player.PlayerLoginEvent
 import net.minestom.server.event.trait.PlayerEvent
 import java.util.UUID
@@ -18,8 +19,6 @@ fun playerListenerNode(server: MinecraftServer): EventNode<PlayerEvent> {
         "player-listener",
         EventFilter.PLAYER
     )
-
-    val partyNode = partyListenerNode()
 
     node.addSuspendingListener(server, PlayerLoginEvent::class.java) { ev ->
         val player = ev.player
@@ -36,12 +35,12 @@ fun playerListenerNode(server: MinecraftServer): EventNode<PlayerEvent> {
             return@addSuspendingListener
         }
 
+        session.addPlayer(player)
+
         ev.setSpawningInstance(session.instance)
-        player.respawnPoint = Pos(90.0, 100.0, 0.0)
-        player.gameMode = GameMode.CREATIVE
     }
 
-    return node.addChild(partyNode)
+    return node
 }
 
 object DummyAPI {

@@ -14,6 +14,10 @@ object GamePlayerSessionRegistry {
         get() = PLAYERS
 
     fun addPlayer(player: Player, game: KOTCGameSession): GamePlayerSession {
+        if(findPlayer(player.uuid) != null) {
+            throw IllegalArgumentException("player already exists.")
+        }
+
         val session = GamePlayerSession(
             player.uuid,
             game
@@ -22,6 +26,10 @@ object GamePlayerSessionRegistry {
         PLAYERS.add(session)
 
         return session
+    }
+
+    fun removePlayer(uuid: UUID) {
+        PLAYERS.removeIf { it.uuid == uuid }
     }
 
     fun findPlayer(uuid: UUID): GamePlayerSession? {

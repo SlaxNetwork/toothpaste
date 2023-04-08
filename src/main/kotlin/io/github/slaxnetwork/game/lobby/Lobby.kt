@@ -9,6 +9,7 @@ import net.minestom.server.coordinate.Pos
 import net.minestom.server.event.EventFilter
 import net.minestom.server.event.EventNode
 import net.minestom.server.event.player.PlayerChatEvent
+import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.event.trait.PlayerEvent
 import net.minestom.server.instance.Instance
 
@@ -25,8 +26,15 @@ class Lobby(
     val kotcGameState get() = kotcGame.state
 
     init {
-        MinecraftServer.getGlobalEventHandler()
-            .addChild(lobbyNode)
+        val node = EventNode.value(
+            "kotc-lobby-listener",
+            EventFilter.INSTANCE
+        ) { kotcGameState == KOTCGameState.IN_LOBBY }
+
+        node.addChild(lobbyNode)
+
+        instance.eventNode()
+            .addChild(node)
     }
 
     fun teleportToSpawn() {
@@ -36,13 +44,12 @@ class Lobby(
     }
 }
 
-private fun lobbyNode(lobby: Lobby): EventNode<PlayerEvent> {
+private fun lobbyNode(lobby: Lobby): EventNode<InstanceEvent> {
     val node = EventNode.value(
         "kotc-lobby-listener",
-        EventFilter.PLAYER
+        EventFilter.INSTANCE
     ) {
         lobby.kotcGameState == KOTCGameState.IN_LOBBY
-                && lobby.instance.uniqueId == it.instance?.uniqueId
     }
 
     node.addListener(PlayerChatEvent::class.java) { ev ->
