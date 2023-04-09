@@ -2,14 +2,10 @@ package io.github.slaxnetwork.listener.nodes.player
 
 import com.github.shynixn.mccoroutine.minestom.addSuspendingListener
 import io.github.slaxnetwork.game.KOTCGameSession
-import io.github.slaxnetwork.listener.nodes.player.party.partyListenerNode
 import io.github.slaxnetwork.session.SessionDistributor
 import net.minestom.server.MinecraftServer
-import net.minestom.server.coordinate.Pos
-import net.minestom.server.entity.GameMode
 import net.minestom.server.event.EventFilter
 import net.minestom.server.event.EventNode
-import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.player.PlayerLoginEvent
 import net.minestom.server.event.trait.PlayerEvent
 import java.util.UUID

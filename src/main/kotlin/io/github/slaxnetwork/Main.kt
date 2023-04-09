@@ -5,6 +5,7 @@ import io.github.slaxnetwork.commands.TestInstanceCommand
 import io.github.slaxnetwork.listener.registerGlobalListeners
 import io.github.slaxnetwork.session.SessionDistributor
 import net.minestom.server.MinecraftServer
+import net.minestom.server.extras.optifine.OptifineSupport
 import net.minestom.server.extras.velocity.VelocityProxy
 
 fun main() {
@@ -19,6 +20,7 @@ fun main() {
         SessionDistributor.createServerPool()
     }
 
+    OptifineSupport.enable()
     VelocityProxy.enable("fOJMwAzavxNh")
     server.start("0.0.0.0", 25565)
 }

@@ -55,7 +55,8 @@ object SessionDistributor {
      */
     fun findGameSession(): KOTCGameSession? {
         // TODO: 4/7/2023 implement
-        return gamePool.firstOrNull()
+        return gamePool.filter { it.acceptingConnections }
+            .minByOrNull { it.players.size }
     }
 
     /**

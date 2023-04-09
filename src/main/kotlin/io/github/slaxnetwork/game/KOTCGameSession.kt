@@ -12,13 +12,13 @@ import net.minestom.server.event.EventNode
 import net.minestom.server.event.instance.AddEntityToInstanceEvent
 import net.minestom.server.event.instance.RemoveEntityFromInstanceEvent
 import net.minestom.server.event.player.PlayerDisconnectEvent
-import net.minestom.server.event.trait.EntityEvent
 import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.AnvilLoader
 import net.minestom.server.instance.Instance
-import net.minestom.server.instance.block.Block
-import java.io.File
+import net.minestom.server.timer.Task
 import java.nio.file.Path
+import java.time.Duration
+import java.util.UUID
 
 /**
  * @author Tech
@@ -28,27 +28,44 @@ class KOTCGameSession(
     val id: Int,
     val instance: Instance
 ) {
-    val lobby = Lobby(this, instance)
-
     private val _players = mutableSetOf<GamePlayerSession>()
     val players: Set<GamePlayerSession>
         get() = _players
+
+    val startHandler = StartHandler(this)
+
+    val lobby = Lobby(this, instance)
 
     var hasStarted: Boolean = false
         private set
 
     var state: KOTCGameState = KOTCGameState.IN_LOBBY
 
+    val maxConnections get() = players.size - MAX_PLAYER_START
+    val acceptingConnections get() = maxConnections >= 1
+
+
     init {
         instance.eventNode()
             .addChild(kotcGameSessionNode(this))
+    }
+
+    fun startVotePeriod() {
+
     }
 
     fun addPlayer(player: Player): GamePlayerSession {
         return GamePlayerSessionRegistry.addPlayer(player, this)
     }
 
+    fun removePlayer(uuid: UUID) {
+        GamePlayerSessionRegistry.removePlayer(uuid)
+    }
+
     companion object {
+        const val MIN_PLAYER_START = 3
+        const val MAX_PLAYER_START = 12
+
         fun createInstance(): Instance {
             val instance = MinecraftServer.getInstanceManager()
                 .createInstanceContainer()
@@ -56,6 +73,101 @@ class KOTCGameSession(
             instance.chunkLoader = AnvilLoader(Path.of("test").toAbsolutePath())
 
             return instance
+        }
+    }
+
+    /**
+     * @author Tech
+     * @since 0.0.1
+     */
+    class StartHandler(private val kotcGame: KOTCGameSession) {
+        private var countdown: Int = SLOW_COUNTDOWN
+
+        private var countdownTask: Task? = null
+
+        val isCountdownActive: Boolean
+            get() = countdownTask != null
+
+        /**
+         * @since 0.0.1
+         */
+        fun startGameCountdown(fast: Boolean = false) {
+            val potentialCountdown = if(fast) FAST_COUNTDOWN else SLOW_COUNTDOWN
+
+            // TODO: 4/9/2023 might wanna change from -1 default to something else?
+            if(potentialCountdown < countdown) {
+                countdown = potentialCountdown
+            }
+
+            if(!isCountdownActive) {
+                countdownTask = buildCountdownTask()
+                // announce timer started.
+            }
+
+        }
+
+        /**
+         * @since 0.0.1
+         */
+        private fun buildCountdownTask(): Task {
+            return kotcGame.instance
+                .scheduler().buildTask {
+                    if(countdown-- == 0) {
+                        startVotingPeriod()
+
+                        disposeCountdownTask()
+                    }
+
+                    // update bossbar
+                }
+                .delay(Duration.ofMillis(500))
+                .repeat(Duration.ofSeconds(1))
+                .schedule()
+        }
+
+        /**
+         * @since 0.0.1
+         */
+        fun stopGameCountdown() {
+            // announce countdown stopped or smth
+            disposeCountdownTask()
+        }
+
+        /**
+         * @since 0.0.1
+         */
+        private fun disposeCountdownTask() {
+            countdownTask?.let { task ->
+                task.cancel()
+                countdownTask = null
+            }
+
+            countdown = SLOW_COUNTDOWN
+        }
+
+        /**
+         * @since 0.0.1
+         */
+        fun startVotingPeriod() {
+            if(kotcGame.players.size < MIN_PLAYER_START) {
+                // don't start game, not enough players, add special handling?
+                return
+            }
+
+            kotcGame.startVotePeriod()
+        }
+
+        /**
+         * @since 0.0.1
+         */
+        private fun updateInstanceBossBar() {
+
+        }
+
+        companion object {
+            const val SLOW_COUNTDOWN = 60
+
+            const val FAST_COUNTDOWN = 20
         }
     }
 }
