@@ -1,6 +1,5 @@
 package io.github.slaxnetwork.party
 
-import io.github.slaxnetwork.listener.nodes.player.party.partyListenerNode
 import net.minestom.server.MinecraftServer
 import net.minestom.server.event.EventNode
 

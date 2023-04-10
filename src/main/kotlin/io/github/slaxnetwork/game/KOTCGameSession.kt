@@ -1,8 +1,10 @@
 package io.github.slaxnetwork.game
 
 import io.github.slaxnetwork.game.lobby.Lobby
+import io.github.slaxnetwork.game.lobby.getLobbyEventNode
 import io.github.slaxnetwork.game.player.GamePlayerSession
 import io.github.slaxnetwork.game.player.GamePlayerSessionRegistry
+import io.github.slaxnetwork.mm
 import net.minestom.server.MinecraftServer
 import net.minestom.server.coordinate.Pos
 import net.minestom.server.entity.GameMode
@@ -28,9 +30,8 @@ class KOTCGameSession(
     val id: Int,
     val instance: Instance
 ) {
-    private val _players = mutableSetOf<GamePlayerSession>()
     val players: Set<GamePlayerSession>
-        get() = _players
+        get() = GamePlayerSessionRegistry.players.filter { it.kotcGame.id == id }.toSet()
 
     val startHandler = StartHandler(this)
 
@@ -41,13 +42,13 @@ class KOTCGameSession(
 
     var state: KOTCGameState = KOTCGameState.IN_LOBBY
 
-    val maxConnections get() = players.size - MAX_PLAYER_START
-    val acceptingConnections get() = maxConnections >= 1
-
+    val maxConnections: Int get() = MAX_PLAYER_START - players.size
+    val acceptingConnections: Boolean get() = maxConnections >= 1 && !hasStarted
 
     init {
         instance.eventNode()
-            .addChild(kotcGameSessionNode(this))
+            .addChild(getLobbyEventNode(lobby))
+            .addChild(KOTCGameSessionEventNode.createNode())
     }
 
     fun startVotePeriod() {
@@ -63,7 +64,7 @@ class KOTCGameSession(
     }
 
     companion object {
-        const val MIN_PLAYER_START = 3
+        const val MIN_PLAYER_START = 1
         const val MAX_PLAYER_START = 12
 
         fun createInstance(): Instance {
@@ -100,7 +101,7 @@ class KOTCGameSession(
             }
 
             if(!isCountdownActive) {
-                countdownTask = buildCountdownTask()
+                countdownTask = buildCountdownTask().schedule()
                 // announce timer started.
             }
 
@@ -109,9 +110,10 @@ class KOTCGameSession(
         /**
          * @since 0.0.1
          */
-        private fun buildCountdownTask(): Task {
+        private fun buildCountdownTask(): Task.Builder {
             return kotcGame.instance
                 .scheduler().buildTask {
+                    println("always, $countdown")
                     if(countdown-- == 0) {
                         startVotingPeriod()
 
@@ -122,7 +124,6 @@ class KOTCGameSession(
                 }
                 .delay(Duration.ofMillis(500))
                 .repeat(Duration.ofSeconds(1))
-                .schedule()
         }
 
         /**

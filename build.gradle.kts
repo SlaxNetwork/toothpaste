@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.8.10"
-    kotlin("plugin.serialization") version "1.8.10"
+    kotlin("jvm") version "1.8.20"
+    kotlin("plugin.serialization") version "1.8.20"
 
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -19,7 +19,8 @@ repositories {
 dependencies {
     implementation("com.github.Minestom.Minestom:Minestom:-SNAPSHOT")
 
-    implementation("com.github.hollow-cube.common:schem:e187e892fd")
+    implementation("net.kyori:adventure-api:4.13.0")
+    implementation("net.kyori:adventure-text-minimessage:4.13.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
