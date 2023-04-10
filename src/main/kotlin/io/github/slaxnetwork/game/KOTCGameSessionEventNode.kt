@@ -2,12 +2,9 @@ package io.github.slaxnetwork.game
 
 import io.github.slaxnetwork.game.player.GamePlayerSession
 import io.github.slaxnetwork.game.player.GamePlayerSessionRegistry
-import net.minestom.server.entity.Player
+import net.minestom.server.entity.GameMode
 import net.minestom.server.event.EventFilter
 import net.minestom.server.event.EventNode
-import net.minestom.server.event.instance.AddEntityToInstanceEvent
-import net.minestom.server.event.instance.RemoveEntityFromInstanceEvent
-import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.Instance
 import java.util.UUID
@@ -31,9 +28,11 @@ interface KOTCGameSessionEvent : InstanceEvent {
  * @since 0.0.1
  */
 data class KOTCSessionPlayerAddedEvent(
-    val playerSession: GamePlayerSession,
-    override val kotcGame: KOTCGameSession
+    val playerSession: GamePlayerSession
 ) : KOTCGameSessionEvent {
+    override val kotcGame: KOTCGameSession
+        get() = playerSession.kotcGame
+
     override fun getInstance(): Instance {
         return kotcGame.instance
     }
@@ -69,6 +68,15 @@ object KOTCGameSessionEventNode {
             KOTCGameSessionEvent.getEventFilter()
         )
 
+        node.addListener(KOTCSessionPlayerAddedEvent::class.java) { ev ->
+            val player = ev.playerSession.minestomPlayer
+                ?: return@addListener
+
+            player.scheduleNextTick {
+                player.gameMode = GameMode.CREATIVE
+            }
+        }
+
         node.addListener(KOTCSessionPlayerRemovedEvent::class.java) { ev ->
             val kotcGame = ev.kotcGame
 
@@ -81,7 +89,7 @@ object KOTCGameSessionEventNode {
             }
         }
 
-        return node
+        return node.addChild(checkStartKOTCSessionNode())
     }
 
     /**

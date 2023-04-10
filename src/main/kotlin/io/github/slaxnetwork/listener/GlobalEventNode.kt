@@ -8,5 +8,5 @@ import net.minestom.server.MinecraftServer
  */
 fun registerGlobalEventNode(server: MinecraftServer) {
     MinecraftServer.getGlobalEventHandler()
-        .addChild(PlayerEventNode(server).createNode())
+        .addChild(PlayerEventNode.createNode(server))
 }

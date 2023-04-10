@@ -8,6 +8,7 @@ import net.minestom.server.event.EventFilter
 import net.minestom.server.event.EventNode
 import net.minestom.server.instance.AnvilLoader
 import net.minestom.server.instance.Instance
+import net.minestom.server.instance.block.Block
 import java.nio.file.Path
 
 /**
@@ -48,11 +49,13 @@ class Lobby(
             val instance = MinecraftServer.getInstanceManager()
                 .createInstanceContainer()
 
-            MinecraftServer.getInstanceManager().createSharedInstance(instance)
+            instance.setBlock(0, -15, 0, Block.GRASS_BLOCK)
 
-            instance.chunkLoader = AnvilLoader(Path.of("lobby").toAbsolutePath())
+            val z = MinecraftServer.getInstanceManager().createSharedInstance(instance)
 
-            lobbyInstance = instance
+//            instance.chunkLoader = AnvilLoader(Path.of("lobby").toAbsolutePath())
+
+            lobbyInstance = z
         }
     }
 }

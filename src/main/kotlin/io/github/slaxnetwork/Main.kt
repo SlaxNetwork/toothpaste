@@ -1,6 +1,7 @@
 package io.github.slaxnetwork
 
 import com.github.shynixn.mccoroutine.minestom.launch
+import io.github.slaxnetwork.commands.SwapKOTCInstanceCommand
 import io.github.slaxnetwork.commands.TestInstanceCommand
 import io.github.slaxnetwork.listener.registerGlobalEventNode
 import io.github.slaxnetwork.session.SessionDistributor
@@ -34,6 +35,7 @@ fun main() {
 private fun registerCommands() {
     MinecraftServer.getCommandManager().run {
         register(TestInstanceCommand)
+        register(SwapKOTCInstanceCommand)
     }
 }
 
