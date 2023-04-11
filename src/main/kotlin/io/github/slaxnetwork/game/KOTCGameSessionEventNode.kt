@@ -17,8 +17,12 @@ interface KOTCGameSessionEvent : InstanceEvent {
     val kotcGame: KOTCGameSession
 
     companion object {
-        fun getEventFilter(): EventFilter<KOTCGameSessionEvent, KOTCGameSession> {
-            return EventFilter.from(KOTCGameSessionEvent::class.java, KOTCGameSession::class.java, KOTCGameSessionEvent::kotcGame)
+        fun eventFilter(): EventFilter<KOTCGameSessionEvent, KOTCGameSession> {
+            return EventFilter.from(
+                KOTCGameSessionEvent::class.java,
+                KOTCGameSession::class.java,
+                KOTCGameSessionEvent::kotcGame
+            )
         }
     }
 }
@@ -55,6 +59,21 @@ data class KOTCSessionPlayerRemovedEvent(
  * @author Tech
  * @since 0.0.1
  */
+data class KOTCSessionPlayerReconnectEvent(
+    val playerSession: GamePlayerSession
+) : KOTCGameSessionEvent {
+    override val kotcGame: KOTCGameSession
+        get() = playerSession.kotcGame
+
+    override fun getInstance(): Instance {
+        return kotcGame.instance
+    }
+}
+
+/**
+ * @author Tech
+ * @since 0.0.1
+ */
 object KOTCGameSessionEventNode {
     private const val NODE_ID = "kotc-game-session-event-node"
     private const val CHECK_START_KOTC_NODE_ID = "kotc-game-session-start-event-node"
@@ -65,7 +84,7 @@ object KOTCGameSessionEventNode {
     fun createNode(): EventNode<KOTCGameSessionEvent> {
         val node = EventNode.type(
             NODE_ID,
-            KOTCGameSessionEvent.getEventFilter()
+            KOTCGameSessionEvent.eventFilter()
         )
 
         node.addListener(KOTCSessionPlayerAddedEvent::class.java) { ev ->
@@ -75,6 +94,10 @@ object KOTCGameSessionEventNode {
             player.scheduleNextTick {
                 player.gameMode = GameMode.CREATIVE
             }
+        }
+
+        node.addListener(KOTCSessionPlayerReconnectEvent::class.java) { ev ->
+            ev.playerSession.connected = true
         }
 
         node.addListener(KOTCSessionPlayerRemovedEvent::class.java) { ev ->
@@ -98,7 +121,7 @@ object KOTCGameSessionEventNode {
     private fun checkStartKOTCSessionNode(): EventNode<KOTCGameSessionEvent> {
         val node = EventNode.value(
             CHECK_START_KOTC_NODE_ID,
-            KOTCGameSessionEvent.getEventFilter()
+            KOTCGameSessionEvent.eventFilter()
         ) { kotcGame ->
             kotcGame.state == KOTCGameState.IN_LOBBY && !kotcGame.hasStarted
         }

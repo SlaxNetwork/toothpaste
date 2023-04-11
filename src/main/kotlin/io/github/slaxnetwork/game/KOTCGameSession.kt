@@ -26,16 +26,13 @@ import java.util.UUID
  * @author Tech
  * @since 0.0.1
  */
-class KOTCGameSession(
-    val id: Int,
-    val instance: Instance
-) {
+class KOTCGameSession(val id: Int) {
     val players: Set<GamePlayerSession>
         get() = GamePlayerSessionRegistry.players.filter { it.kotcGame.id == id }.toSet()
 
     val startHandler = StartHandler(this)
 
-    val lobby = Lobby(this, instance)
+    val lobby = Lobby(this)
 
     var hasStarted: Boolean = false
         private set
@@ -46,9 +43,9 @@ class KOTCGameSession(
     val acceptingConnections: Boolean get() = maxConnections >= 1 && !hasStarted
 
     init {
-        instance.eventNode()
-            .addChild(getLobbyEventNode(lobby))
-            .addChild(KOTCGameSessionEventNode.createNode())
+//        instance.eventNode()
+//            .addChild(getLobbyEventNode(lobby))
+//            .addChild(KOTCGameSessionEventNode.createNode())
     }
 
     fun startVotePeriod() {

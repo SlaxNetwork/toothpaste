@@ -13,6 +13,10 @@ import net.minestom.server.event.player.PlayerChatEvent
 import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.Instance
 
+object LobbyEventNode {
+
+}
+
 fun getLobbyEventNode(lobby: Lobby): EventNode<InstanceEvent> {
     val node = EventNode.value(
         "kotc-session-lobby-event-node",

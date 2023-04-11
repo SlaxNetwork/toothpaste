@@ -15,47 +15,41 @@ import java.nio.file.Path
  * @author Tech
  * @since 0.0.1
  */
-class Lobby(
-    val kotcGame: KOTCGameSession,
-    val instance: Instance
-) {
+class Lobby(val kotcGame: KOTCGameSession) {
+    private val instance: Instance
+
     private val voteHandler = LobbyVoteHandler()
 
     val kotcGameState get() = kotcGame.state
 
+    // Initialize Map Instance.
+    init {
+        val container = MinecraftServer.getInstanceManager()
+            .createInstanceContainer()
+
+        container.setBlock(0, -15, 0, Block.GRASS_BLOCK)
+
+        container.chunkLoader = AnvilLoader(Path.of("lobby").toAbsolutePath())
+
+        instance = container
+    }
+
+    // Initialize Instance Node
     init {
         val node = EventNode.value(
             "kotc-lobby-listener",
             EventFilter.INSTANCE
         ) { kotcGameState == KOTCGameState.IN_LOBBY }
 
+
         instance.eventNode()
-            .addChild(
-                node.addChild(getLobbyEventNode(this))
-                    .addChild(getLobbyVoteEventNode())
-            )
+            .addChild(getLobbyEventNode(this))
+            .addChild(getLobbyVoteEventNode())
     }
 
     fun teleportToSpawn() {
         for(player in kotcGame.players) {
             player.minestomPlayer?.teleport(Pos(0.0, 100.0, 0.0))
-        }
-    }
-
-    companion object {
-        val lobbyInstance: Instance
-
-        init {
-            val instance = MinecraftServer.getInstanceManager()
-                .createInstanceContainer()
-
-            instance.setBlock(0, -15, 0, Block.GRASS_BLOCK)
-
-            val z = MinecraftServer.getInstanceManager().createSharedInstance(instance)
-
-//            instance.chunkLoader = AnvilLoader(Path.of("lobby").toAbsolutePath())
-
-            lobbyInstance = z
         }
     }
 }
