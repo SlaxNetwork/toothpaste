@@ -5,7 +5,6 @@ package io.github.slaxnetwork.game.microgame
  * @since 0.0.1
  */
 enum class MicroGameState {
-    WAITING,
     IN_PRE_GAME,
     IN_GAME,
     ENDING

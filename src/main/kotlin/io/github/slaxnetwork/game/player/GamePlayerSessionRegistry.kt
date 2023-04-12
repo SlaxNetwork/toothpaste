@@ -1,7 +1,6 @@
 package io.github.slaxnetwork.game.player
 
 import io.github.slaxnetwork.game.KOTCGameSession
-import net.minestom.server.entity.Player
 import java.util.UUID
 
 /**
@@ -13,14 +12,14 @@ object GamePlayerSessionRegistry {
     val players: Set<GamePlayerSession>
         get() = PLAYERS
 
-    fun addPlayer(player: Player, game: KOTCGameSession): GamePlayerSession {
-        if(findPlayer(player.uuid) != null) {
+    fun add(uuid: UUID, kotcGame: KOTCGameSession): GamePlayerSession {
+        if(findByUUID(uuid) != null) {
             throw IllegalArgumentException("player already exists.")
         }
 
         val session = GamePlayerSession(
-            player.uuid,
-            game
+            uuid,
+            kotcGame
         )
 
         PLAYERS.add(session)
@@ -28,11 +27,11 @@ object GamePlayerSessionRegistry {
         return session
     }
 
-    fun removePlayer(uuid: UUID) {
+    fun remove(uuid: UUID) {
         PLAYERS.removeIf { it.uuid == uuid }
     }
 
-    fun findPlayer(uuid: UUID): GamePlayerSession? {
+    fun findByUUID(uuid: UUID): GamePlayerSession? {
         return players.firstOrNull { it.uuid == uuid }
     }
 }

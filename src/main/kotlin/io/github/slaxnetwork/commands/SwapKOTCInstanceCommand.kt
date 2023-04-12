@@ -1,6 +1,5 @@
 package io.github.slaxnetwork.commands
 
-import io.github.slaxnetwork.game.KOTCGameState
 import io.github.slaxnetwork.game.player.GamePlayerSessionRegistry
 import net.minestom.server.command.builder.Command
 import net.minestom.server.entity.Player
@@ -11,7 +10,7 @@ object SwapKOTCInstanceCommand : Command("swapinst") {
             val player = sender as? Player
                 ?: return@setDefaultExecutor
 
-            val playerSession = GamePlayerSessionRegistry.findPlayer(player.uuid)
+            val playerSession = GamePlayerSessionRegistry.findByUUID(player.uuid)
                 ?: return@setDefaultExecutor
 
             player.sendMessage(playerSession.kotcGame.id.toString())

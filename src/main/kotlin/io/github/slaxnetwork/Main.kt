@@ -9,6 +9,8 @@ import net.minestom.server.MinecraftServer
 import net.minestom.server.extras.optifine.OptifineSupport
 import net.minestom.server.extras.velocity.VelocityProxy
 
+private const val INITIAL_SESSION_AMOUNT = 3
+
 fun main() {
     initializeMiniMessage()
 
@@ -20,7 +22,7 @@ fun main() {
     createShutdownHook()
 
     server.launch {
-        SessionDistributor.createServerPool()
+        SessionDistributor.addToSessionPool(INITIAL_SESSION_AMOUNT)
     }
 
     OptifineSupport.enable()

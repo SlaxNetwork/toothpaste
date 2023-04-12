@@ -23,14 +23,14 @@ object SessionDistributor {
      * of this server.
      * @since 0.0.1
      */
-    suspend fun createServerPool() {
-        GAME_POOL.clear()
+    suspend fun addToSessionPool(amount: Int) {
+        // dont go over allocation amount.
+        if((gamePool.size + amount) > MAX_GAME_SESSIONS) {
+            return
+        }
 
-        repeat(MAX_GAME_SESSIONS) {
-            val kotcGame = KOTCGameSession(
-                id = it,
-                instance = KOTCGameSession.createInstance()
-            )
+        repeat(amount) {
+            val kotcGame = KOTCGameSession(it)
 
             GAME_POOL.add(kotcGame)
         }
@@ -49,14 +49,22 @@ object SessionDistributor {
     }
 
     /**
+     * @since 0.0.1
+     */
+    private suspend fun unregisterFromKyouko(kotcGame: KOTCGameSession) {
+
+    }
+
+    /**
      * Find the most desirable [KOTCGameSession].
      * @return Possible Game Instance.
      * @since 0.0.1
      */
     fun findGameSession(): KOTCGameSession? {
         // TODO: 4/7/2023 implement
-        return gamePool.filter { it.acceptingConnections }
-            .minByOrNull { it.players.size }
+        return gamePool.firstOrNull()
+//        return gamePool.filter { it.acceptingConnections }
+//            .minByOrNull { it.players.size }
     }
 
     /**
@@ -65,9 +73,10 @@ object SessionDistributor {
      * @return Possible Game Instance.
      * @since 0.0.1
      */
-    fun findGameSessionById(id: Int): KOTCGameSession? {
-        return gamePool.firstOrNull {
-            it.id == id
-        }
+    fun findGameSessionById(id: String): KOTCGameSession? {
+        return gamePool.firstOrNull()
+//        return gamePool.firstOrNull {
+//            it.id == id
+//        }
     }
 }

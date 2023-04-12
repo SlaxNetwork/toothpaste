@@ -14,8 +14,6 @@ class GamePlayerSession(
 ) {
     var connected: Boolean = true
 
-    val statistics = GamePlayerSessionStatistics()
-
     val minestomPlayer: Player?
         get() = Player.getEntity(uuid) as? Player
 }

@@ -11,7 +11,7 @@ object TestInstanceCommand : Command("confidence") {
             val player = sender as? Player
                 ?: return@setDefaultExecutor
 
-            val playerSession = GamePlayerSessionRegistry.findPlayer(player.uuid)
+            val playerSession = GamePlayerSessionRegistry.findByUUID(player.uuid)
                 ?: return@setDefaultExecutor
 
             val kotcGame = playerSession.kotcGame
