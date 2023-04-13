@@ -9,12 +9,8 @@ import net.minestom.server.instance.SharedInstance
 import java.nio.file.Path
 
 class Lobby(private val kotcGame: KOTCGameSession) {
-    val instance: SharedInstance
-
-    init {
-        instance = MinecraftServer.getInstanceManager()
-            .createSharedInstance(lobbyInstance)
-    }
+    val instance: SharedInstance = MinecraftServer.getInstanceManager()
+        .createSharedInstance(lobbyInstance)
 
     init {
         instance.eventNode()

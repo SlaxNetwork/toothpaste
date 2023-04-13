@@ -12,10 +12,11 @@ object DummyAPI {
 
 object DummyPartyHandler {
     fun findPartyGameSession(uuid: UUID): KOTCGameSession? {
-        val serv = SessionDistributor.gamePool
-            .firstOrNull { it.players.map { c -> c.uuid }.contains(uuid) }
-
-        return serv
+//        val serv = SessionDistributor.gamePool
+//            .firstOrNull { it.players.map { c -> c.uuid }.contains(uuid) }
+//
+//        return serv
+        return null
     }
 }
 
