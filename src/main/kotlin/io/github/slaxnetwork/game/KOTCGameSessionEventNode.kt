@@ -46,7 +46,7 @@ object KOTCGameSessionEventNode {
 
         // check for start.
         node.addListener(KOTCSessionPlayerAddedEvent::class.java) { ev ->
-
+            val startHandler = ev.kotcGame.startHandler
         }
 
         // make sure min players are filled.

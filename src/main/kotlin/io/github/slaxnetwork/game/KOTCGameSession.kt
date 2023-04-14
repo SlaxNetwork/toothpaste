@@ -2,7 +2,7 @@ package io.github.slaxnetwork.game
 
 import io.github.slaxnetwork.game.lobby.Lobby
 import io.github.slaxnetwork.game.microgame.MicroGame
-import kotlinx.coroutines.DisposableHandle
+import io.github.slaxnetwork.game.player.GamePlayerSessionRegistry
 import net.minestom.server.event.EventNode
 import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.Instance
@@ -20,6 +20,8 @@ class KOTCGameSession(val id: Int) {
      */
     val lobby = Lobby(this)
 
+    val startHandler = StartHandler(currentInstance.scheduler())
+
     /**
      * Current [MicroGame] being played on the [KOTCGameSession].
      */
@@ -30,7 +32,6 @@ class KOTCGameSession(val id: Int) {
      * State of the [KOTCGameSession].
      */
     var state: KOTCGameState = KOTCGameState.IN_LOBBY
-//        private set
 
     /**
      * Current [Instance] of the [KOTCGameSession].
@@ -39,8 +40,18 @@ class KOTCGameSession(val id: Int) {
      * not being played.
      */
     val currentInstance: Instance
-        get() = microGame?.map?.instance ?: lobby.instance
+        get() = microGame?.map?.instance
+            ?: lobby.instance
+            ?: run {
+                // try to load the lobby as a fallback if our instances are mis-managed.
+                println("attempting to load lobby instance as session instance is mis-managed.")
+                lobby.load()
+            }
+            ?: throw NullPointerException("no instance was able to be loaded in for the session.")
 
+    /**
+     * Referencing [EventNode] of the current active [Instance].
+     */
     val instanceEventNode: EventNode<InstanceEvent>
         get() = currentInstance.eventNode()
 
