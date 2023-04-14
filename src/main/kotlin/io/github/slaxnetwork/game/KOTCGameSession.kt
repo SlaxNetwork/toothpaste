@@ -3,6 +3,8 @@ package io.github.slaxnetwork.game
 import io.github.slaxnetwork.game.lobby.Lobby
 import io.github.slaxnetwork.game.microgame.MicroGame
 import kotlinx.coroutines.DisposableHandle
+import net.minestom.server.event.EventNode
+import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.Instance
 import net.minestom.server.timer.Scheduler
 import net.minestom.server.timer.Task
@@ -28,7 +30,7 @@ class KOTCGameSession(val id: Int) {
      * State of the [KOTCGameSession].
      */
     var state: KOTCGameState = KOTCGameState.IN_LOBBY
-        private set
+//        private set
 
     /**
      * Current [Instance] of the [KOTCGameSession].
@@ -38,6 +40,9 @@ class KOTCGameSession(val id: Int) {
      */
     val currentInstance: Instance
         get() = microGame?.map?.instance ?: lobby.instance
+
+    val instanceEventNode: EventNode<InstanceEvent>
+        get() = currentInstance.eventNode()
 
     /**
      * Whether the [KOTCGameSession] has started.

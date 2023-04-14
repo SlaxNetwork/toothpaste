@@ -1,11 +1,15 @@
 package io.github.slaxnetwork.listener.player
 
+import io.github.slaxnetwork.game.KOTCSessionPlayerAddedEvent
+import io.github.slaxnetwork.game.KOTCSessionPlayerReconnectEvent
+import io.github.slaxnetwork.game.KOTCSessionPlayerDisconnectedEvent
 import io.github.slaxnetwork.game.player.GamePlayerSessionRegistry
 import io.github.slaxnetwork.session.SessionDistributor
 import net.minestom.server.MinecraftServer
 import net.minestom.server.event.EventFilter
 import net.minestom.server.event.EventNode
 import net.minestom.server.event.GlobalEventHandler
+import net.minestom.server.event.player.PlayerDisconnectEvent
 import net.minestom.server.event.player.PlayerLoginEvent
 import net.minestom.server.event.trait.PlayerEvent
 
@@ -18,7 +22,8 @@ object PlayerEventNode {
         get() = MinecraftServer.getGlobalEventHandler()
 
     private const val NODE_ID = "player-event-node"
-    private const val KOTC_SESSION_HANDLER_NODE_ID = "player-kotc-session-handler-node"
+    private const val KOTC_SESSION_COORDINATOR_NODE_ID = "player-kotc-session-coordinator-node"
+    private const val KOTC_SESSION_CONNECTION_NODE_ID = "player-kotc-session-connection-node"
 
     /**
      * @since 0.0.1
@@ -31,7 +36,8 @@ object PlayerEventNode {
 
 
 
-        return node
+        return node.addChild(kotcSessionCoordinatorNode(server))
+            .addChild(kotcSessionConnectionNode(server))
 //        node.addListener(PlayerLoginEvent::class.java) { ev ->
 //            val playerSession = GamePlayerSessionRegistry.findByUUID(ev.player.uuid)
 //                ?: return@addListener
@@ -57,9 +63,9 @@ object PlayerEventNode {
     /**
      * @since 0.0.1
      */
-    private fun kotcSessionHandlerNode(server: MinecraftServer): EventNode<PlayerEvent> {
+    private fun kotcSessionCoordinatorNode(server: MinecraftServer): EventNode<PlayerEvent> {
         val node = EventNode.value(
-            KOTC_SESSION_HANDLER_NODE_ID,
+            KOTC_SESSION_COORDINATOR_NODE_ID,
             EventFilter.PLAYER
         ) { GamePlayerSessionRegistry.findByUUID(it.uuid) == null }
 
@@ -83,37 +89,36 @@ object PlayerEventNode {
                 player.uuid,
                 kotcGame
             )
-
             ev.setSpawningInstance(kotcGame.currentInstance)
+
+            kotcGame.instanceEventNode.call(KOTCSessionPlayerAddedEvent(playerSession, kotcGame))
         }
 
         return node
+    }
 
-//        node.addSuspendingListener(server, PlayerLoginEvent::class.java) { ev ->
-//            val player = ev.player
-//
-//            val party = DummyAPI.findParty(player.uuid)
-//            val kotcSession = if(party == null) {
-//                SessionDistributor.findGameSession()
-//            } else {
-//                DummyPartyHandler.findPartyGameSession(party.leader)
-//                    ?: SessionDistributor.findGameSession()
-//            }
-//
-//            if(kotcSession == null) {
-//                player.kick("No session found.")
-//                return@addSuspendingListener
-//            }
-//
-//            // add them to the session.
-//            val playerSession = kotcSession.addPlayer(player)
-//            // set their spawning instance.
-//            ev.setSpawningInstance(kotcSession.instance)
-//
-//            globalEventHandler.call(KOTCSessionPlayerAddedEvent(playerSession))
-//        }
-//
-//        return node
-//    }
+    private fun kotcSessionConnectionNode(server: MinecraftServer): EventNode<PlayerEvent> {
+        val node = EventNode.type(
+            KOTC_SESSION_CONNECTION_NODE_ID,
+            EventFilter.PLAYER
+        )
+
+        node.addListener(PlayerLoginEvent::class.java) { ev ->
+            val playerSession = GamePlayerSessionRegistry.findByUUID(ev.player.uuid)
+                ?: return@addListener
+            val eventNode = playerSession.kotcGame.instanceEventNode
+
+            eventNode.call(KOTCSessionPlayerReconnectEvent(playerSession, playerSession.kotcGame))
+        }
+
+        node.addListener(PlayerDisconnectEvent::class.java) { ev ->
+            val playerSession = GamePlayerSessionRegistry.findByUUID(ev.player.uuid)
+                ?: return@addListener
+            val eventNode = playerSession.kotcGame.instanceEventNode
+
+            eventNode.call(KOTCSessionPlayerDisconnectedEvent(playerSession.uuid, playerSession.kotcGame))
+        }
+
+        return node
     }
 }

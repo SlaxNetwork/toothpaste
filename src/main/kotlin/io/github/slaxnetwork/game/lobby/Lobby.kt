@@ -15,6 +15,7 @@ class Lobby(private val kotcGame: KOTCGameSession) {
     init {
         instance.eventNode()
             .addChild(KOTCGameSessionEventNode.createNode())
+            .addChild(KOTCGameSessionEventNode.checkGameStartNode())
             .addChild(LobbyEventNode.createNode())
     }
 

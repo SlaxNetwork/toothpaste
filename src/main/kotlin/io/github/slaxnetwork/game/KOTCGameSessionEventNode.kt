@@ -1,16 +1,12 @@
 package io.github.slaxnetwork.game
 
 import io.github.slaxnetwork.game.player.GamePlayerSession
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.future.asDeferred
+import io.github.slaxnetwork.game.player.GamePlayerSessionRegistry
 import net.minestom.server.event.EventFilter
-import net.minestom.server.event.EventListener
 import net.minestom.server.event.EventNode
-import net.minestom.server.event.entity.EntityTickEvent
 import net.minestom.server.event.trait.InstanceEvent
 import net.minestom.server.instance.Instance
 import java.util.UUID
-import java.util.concurrent.CompletableFuture
 
 object KOTCGameSessionEventNode {
     private const val NODE_ID = "kotc-game-event-node"
@@ -25,13 +21,24 @@ object KOTCGameSessionEventNode {
             KOTCGameSessionEvent.filter()
         )
 
-        return node.addChild(checkGameStartNode())
+        node.addListener(KOTCSessionPlayerDisconnectedEvent::class.java) { ev ->
+            val kotcGame = ev.kotcGame
+
+            if(kotcGame.hasStarted) {
+                GamePlayerSessionRegistry.findByUUID(ev.uuid)
+                    ?.connected = false
+            } else {
+                GamePlayerSessionRegistry.remove(ev.uuid)
+            }
+        }
+
+        return node
     }
 
     /**
      * @since 0.0.1
      */
-    private fun checkGameStartNode(): EventNode<KOTCGameSessionEvent> {
+    fun checkGameStartNode(): EventNode<KOTCGameSessionEvent> {
         val node = EventNode.value(
             CHECK_GAME_START_NODE_ID,
             KOTCGameSessionEvent.filter()
@@ -43,7 +50,7 @@ object KOTCGameSessionEventNode {
         }
 
         // make sure min players are filled.
-        node.addListener(KOTCSessionPlayerRemovedEvent::class.java) { ev ->
+        node.addListener(KOTCSessionPlayerDisconnectedEvent::class.java) { ev ->
 
         }
 
@@ -102,7 +109,7 @@ data class KOTCSessionPlayerReconnectEvent(
  * @author Tech
  * @since 0.0.1
  */
-data class KOTCSessionPlayerRemovedEvent(
+data class KOTCSessionPlayerDisconnectedEvent(
     val uuid: UUID,
     override val kotcGame: KOTCGameSession
 ) : KOTCGameSessionEvent {

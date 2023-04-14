@@ -18,8 +18,6 @@ object PartyHandler {
         MinecraftServer.getGlobalEventHandler()
             .addChild(partyNode)
     }
-
-
 }
 
 private fun partyNode(): EventNode<*> {

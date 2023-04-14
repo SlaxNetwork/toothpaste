@@ -8,8 +8,8 @@ import java.util.UUID
  * @since 0.0.1
  */
 object GamePlayerSessionRegistry {
-    private val PLAYERS = mutableSetOf<GamePlayerSession>()
-    val players: Set<GamePlayerSession>
+    private val PLAYERS = mutableMapOf<UUID, GamePlayerSession>()
+    val players: Map<UUID, GamePlayerSession>
         get() = PLAYERS
 
     fun add(uuid: UUID, kotcGame: KOTCGameSession): GamePlayerSession {
@@ -22,16 +22,16 @@ object GamePlayerSessionRegistry {
             kotcGame
         )
 
-        PLAYERS.add(session)
+        PLAYERS[uuid] = session
 
         return session
     }
 
     fun remove(uuid: UUID) {
-        PLAYERS.removeIf { it.uuid == uuid }
+        PLAYERS.remove(uuid)
     }
 
     fun findByUUID(uuid: UUID): GamePlayerSession? {
-        return players.firstOrNull { it.uuid == uuid }
+        return players[uuid]
     }
 }
